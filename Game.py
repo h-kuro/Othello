@@ -22,6 +22,8 @@ class Game(tkinter.Frame):
     __turn = False
     __white = 0
     __black = 0
+    __none = 0
+    __resultDraw = False
 
     def __init__(self, master=None):
         tkinter.Frame.__init__(self, master)
@@ -162,12 +164,15 @@ class Game(tkinter.Frame):
     def __drawInfo(self):
         self.__black = 0
         self.__white = 0
+        self.__none = 0
         for x in range(8):
             for y in range(8):
                 if self.__discStates[x][y].color == "WHITE":
                     self.__white += 1
                 if self.__discStates[x][y].color == "BLACK":
                     self.__black += 1
+                if self.__discStates[x][y].color == "NONE":
+                    self.__none += 1
 
         self.__blackCountLabel.configure(text="黒:" + str(self.__black) + "個")
         self.__whiteCountLabel.configure(text="白:" + str(self.__white) + "個")
@@ -177,21 +182,17 @@ class Game(tkinter.Frame):
             self.__turnLabel.configure(text="白のターン", fg="WHITE")
 
     def __nextTurn(self):
-        none = 0
         self.__turn = not self.__turn
         self.__drawInfo()
         self.__createPlaceList(self.__turn)
-        for x in range(8):
-            for y in range(8):
-                if self.__discStates[x][y].color == "NONE":
-                    none += 1
-        if none == 0:
+        if self.__none == 0 and (not self.__resultDraw):
+            self.__resultDraw = True
             if self.__white == self.__black:
-                self.__turnLabel.configure(text="ひきわけ", fg="GREY40")
+                messagebox.showinfo("結果", "黒:" + str(self.__black) + "\n白:" + str(self.__white) + "\n\n引き分け")
             elif self.__white < self.__black:
-                self.__turnLabel.configure(text="黒の勝利", fg="BLACK")
+                messagebox.showinfo("結果", "黒:" + str(self.__black) + "\n白:" + str(self.__white) + "\n\n黒の勝利")
             else:
-                self.__turnLabel.configure(text="白の勝利", fg="WHITE")
+                messagebox.showinfo("結果", "黒:" + str(self.__black) + "\n白:" + str(self.__white) + "\n\n白の勝利")
 
     def __restartClick(self):
         if messagebox.askyesno("確認", "ゲームを再起動しますか？"):
